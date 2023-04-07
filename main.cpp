@@ -1,6 +1,9 @@
 #include "Options/Options.hpp"
+#include "Scaner/Scaner.hpp"
 #include <iostream>
 #include <boost/program_options.hpp>
+
+#include <boost/regex.hpp>
 
 using namespace  std;
 
@@ -21,38 +24,10 @@ int main(int argc, const char *argv[])
         return -1;
     }
 
-    for(auto& t:rawOptions.includeDirs)
-    {
 
-        std::cout<<"INC: "<<t<<endl;
+    FileSearch::Scaner scaner(rawOptions);
 
-    }
-
-
-//        if (vm.count("help"))
-//        {
-//            std::cout << desc << '\n';
-//        }
-
-//        if(vm.count("include"))
-//        {
-//            auto& vect=vm["include"].as<vector<string>>();
-//            for(auto& t:vect)
-//            {
-//                std::cout<<"INC: "<<t<<endl;
-//            }
-//        }
-
-//        if(vm.count("exclude"))
-//        {
-//            auto& vect=vm["exclude"].as<vector<string>>();
-//            for(auto& t:vect)
-//            {
-//                std::cout<<"EXC: "<<t<<endl;
-//            }
-//        }
-
-
+    scaner.createPaths();
 
     return 0;
 }

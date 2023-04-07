@@ -9,10 +9,15 @@ find_package(Boost COMPONENTS program_options unit_test_framework REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIR})
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(bayan main.cpp Options/Options.hpp)
+add_executable(bayan
+    main.cpp
+    Options/Options.hpp
+    Scaner/Scaner.hpp
+    Filter/Filter.hpp
+)
 
 target_link_libraries(bayan
         ${Boost_LIBRARIES}
