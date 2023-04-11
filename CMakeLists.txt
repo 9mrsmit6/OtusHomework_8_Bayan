@@ -17,6 +17,8 @@ add_executable(bayan
     Options/Options.hpp
     Scaner/Scaner.hpp
     Filter/Filter.hpp
+    Data/Data.hpp
+    Processor/Processor.hpp
 )
 
 target_link_libraries(bayan

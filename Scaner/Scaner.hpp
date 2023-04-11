@@ -3,6 +3,7 @@
 
 #include "../Options/Options.hpp"
 #include "../Filter/Filter.hpp"
+#include "../Data/Data.hpp"
 #include <boost/regex.hpp>
 #include <memory>
 
@@ -14,24 +15,25 @@ namespace FileSearch
         Scaner(const Options::RawOptions& opt_):
             opt(opt_),
             filter(opt_)
-        {
-            paths=std::make_unique<std::vector<std::filesystem::path>>();
-        }
+        {   }
 
-        void createPaths()
+        std::unique_ptr<Data::FileInfoBiMap> createPaths()
         {
 
+            auto map=std::make_unique<Data::FileInfoBiMap>();
             for(const auto& t:opt.includeDirs)
             {
                 if(opt.isRecursive)
                 {
-                    analizeDir<std::filesystem::recursive_directory_iterator>(t);
+                    analizeDir<std::filesystem::recursive_directory_iterator>(t, map);
                 }
                 else
                 {
-                    analizeDir<std::filesystem::directory_iterator>(t);
+                    analizeDir<std::filesystem::directory_iterator>(t, map);
                 }
             }
+
+            return std::move(map);
 
 
         }
@@ -39,7 +41,7 @@ namespace FileSearch
     private:
 
         template <class Iterator>
-        void analizeDir(const std::filesystem::path& path)
+        void analizeDir(const std::filesystem::path& path, std::unique_ptr<Data::FileInfoBiMap>& bmP)
         {
             try
             {
@@ -55,8 +57,7 @@ namespace FileSearch
                             filter.dirFilter(i->path())
                       )
                     {
-                        std::cout<<i->path()<<std::endl;
-                        paths->push_back(i->path());
+                        bmP->insert({0, {   i->path(),  std::filesystem::file_size(i->path()),  false   }  });
                     }
                 }
             }
@@ -67,8 +68,6 @@ namespace FileSearch
         }
 
         const Options::RawOptions& opt;
-        std::unique_ptr<std::vector<std::filesystem::path>> paths;
-
         Filter filter;
 
     };
