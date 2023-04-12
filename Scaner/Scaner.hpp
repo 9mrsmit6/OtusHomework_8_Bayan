@@ -21,6 +21,7 @@ namespace FileSearch
         {
 
             auto map=std::make_unique<Data::FileInfoBiMap>();
+
             for(const auto& t:opt.includeDirs)
             {
                 if(opt.isRecursive)
@@ -33,16 +34,21 @@ namespace FileSearch
                 }
             }
 
+            Data::eraseUniq(*map);
+            maxBlockCnt=map->left.rbegin()->first;
             return std::move(map);
-
-
         }
+
+        std::size_t getMaxBlockCount(){return maxBlockCnt;}
 
     private:
 
         template <class Iterator>
         void analizeDir(const std::filesystem::path& path, std::unique_ptr<Data::FileInfoBiMap>& bmP)
         {
+            auto blockSize=opt.blockSize;
+            if(blockSize==0){   blockSize=1;   }
+
             try
             {
                 Iterator it(path);
@@ -57,7 +63,9 @@ namespace FileSearch
                             filter.dirFilter(i->path())
                       )
                     {
-                        bmP->insert({0, {   i->path(),  std::filesystem::file_size(i->path()),  false   }  });
+                       auto sz=std::filesystem::file_size(i->path());
+                       auto blCnt=(sz/blockSize)+1;
+                       bmP->insert({blCnt, {   i->path(),  sz }  });
                     }
                 }
             }
@@ -68,6 +76,7 @@ namespace FileSearch
         }
 
         const Options::RawOptions& opt;
+        std::size_t maxBlockCnt{0};
         Filter filter;
 
     };

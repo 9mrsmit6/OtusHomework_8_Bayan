@@ -9,62 +9,67 @@
 #include <vector>
 #include <boost/bimap/support/lambda.hpp>
 
+#include <boost/crc.hpp>
+
 namespace Process
 {
     struct Processor
     {
+
+        Processor(const std::size_t blockSize_, const std::size_t blockCnt_):
+            blockSize(blockSize_),
+            maxBlockCnt(blockCnt_){}
+
         void searchDublicate(std::unique_ptr<Data::FileInfoBiMap>& map)
         {
-            for(std::size_t i{0};i!=maxBlockDeep;i++)
+            for(std::size_t i{0};i!=maxBlockCnt;i++)
             {
-                bool skipedAll{true};
+                auto seek=i*blockSize;
                 for(auto it=map->right.begin();it!=map->right.end();it++)
                 {
-                    auto fInfo=it->first;
-                    if(fInfo.skip){continue;}
-                    if(oversize(fInfo.size))
-                    {
-                        fInfo.skip=true;
-                        map->right.modify_data(it,boost::bimaps::_data=fInfo);
-                        continue;
-                    }
+                    auto& [path, sz]=it->first;
+                    if(sz<=seek){continue;}
 
-                    auto newHash=getBlockHash(i, fInfo.path);
+                    auto newHash=getBlockHash(seek, path);
                     if(!newHash)
                     {
-                        fInfo.skip=true;
-                        map->right.modify_data(it,boost::bimaps::_data=fInfo);
+                        auto hash=combineHash(it->second, newHash.value());
+                        map->right.modify_data(it,boost::bimaps::_data=hash);
                     }
 
                 }
+
+                Data::eraseUniq(*map);
             }
         }
 
     private:
-        std::optional<std::size_t> getBlockHash(std::size_t blockN, std::filesystem::path& path)
+        std::optional<std::size_t> getBlockHash(std::size_t seek, const std::filesystem::path& path)
         {
-            std::ifstream file(path, std::ios_base::binary);
-            if(!file.is_open())
-            {
-                return std::nullopt;
-            }
-
-            std::size_t seek=blockN*blockSize;
-            if(seek>=file.tellg())
-            {
-                return std::nullopt;
-            }
-
             std::vector<char> block(blockSize,0);
-            file.seekg(seek);
-            file.read(block.data(), blockSize);
-            auto readedBytes=file.gcount();
-            if(readedBytes==0)
+            try
+            {
+                std::ifstream file(path, std::ios_base::binary);
+                if(!file.is_open())
+                {
+                    return std::nullopt;
+                }
+
+
+                file.seekg(seek);
+                file.read(block.data(), blockSize);
+                auto readedBytes=file.gcount();
+                if(readedBytes==0)
+                {
+                    return std::nullopt;
+                }
+
+                file.close();
+            }
+            catch(...)
             {
                 return std::nullopt;
             }
-
-            file.close();
 
             return hashBlock(block);
 
@@ -73,19 +78,21 @@ namespace Process
 
         std::size_t hashBlock( std::vector<char>& data)
         {
-            return 123;
+            boost::crc_32_type result;
+            result.process_bytes(data.data(), data.size());
+            return result.checksum();
+
         }
 
-        bool oversize(std::size_t fsize)
+        std::size_t combineHash(std::size_t oldHash, std::size_t newHash)
         {
-            auto seek=currentBlockN*blockSize;
-            return seek>=fsize;
+            oldHash ^= newHash + 0x9e3779b9 + (oldHash << 6) + (oldHash >> 2);
+            return oldHash;
         }
 
+        const std::size_t blockSize;
+        const std::size_t maxBlockCnt;
 
-        const std::size_t blockSize{100};
-        const std::size_t maxBlockDeep{100};
-        std::size_t currentBlockN{0};
     };
 }
 
