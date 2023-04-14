@@ -9,18 +9,19 @@
 
 namespace Options
 {
+    //Хранение сырых опций
     struct RawOptions
     {
-        std::vector<std::filesystem::path>    includeDirs;
-        std::vector<std::string>    excludeDirs {{"./ttt"}};
-        bool                        isRecursive{true};
-        std::size_t                 minFileSize{1};//in bytes
-//        std::vector<std::string>    fileMask;
-        std::vector<std::string>    fileMask{{"(\\w+).md"}};
-        std::size_t                 blockSize{1};
-        int                         hashNumber{0};
+        std::vector<std::filesystem::path>      includeDirs;
+        std::vector<std::string>                excludeDirs;
+        bool                                    isRecursive{true};
+        std::size_t                             minFileSize{1};//in bytes
+        std::vector<std::string>                fileMask{{"(\\w+).md"}};
+        std::size_t                             blockSize{10};
+        int                                     hashNumber{0};
     };
 
+    //Парсим опции
     std::tuple<RawOptions&, bool> getRawOptions(int argc, const char *argv[])
     {
         namespace po = boost::program_options;

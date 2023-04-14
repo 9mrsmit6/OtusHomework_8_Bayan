@@ -8,7 +8,6 @@
 #include <fstream>
 #include <vector>
 #include <boost/bimap/support/lambda.hpp>
-
 #include <boost/crc.hpp>
 
 namespace Process
@@ -31,10 +30,14 @@ namespace Process
                     if(sz<=seek){continue;}
 
                     auto newHash=getBlockHash(seek, path);
-                    if(!newHash)
+                    if(newHash)
                     {
                         auto hash=combineHash(it->second, newHash.value());
                         map->right.modify_data(it,boost::bimaps::_data=hash);
+                    }
+                    else
+                    {
+                        assert(true);
                     }
 
                 }
@@ -71,7 +74,7 @@ namespace Process
                 return std::nullopt;
             }
 
-            return hashBlock(block);
+            return std::optional{hashBlock(block)};
 
         }
 
@@ -80,7 +83,8 @@ namespace Process
         {
             boost::crc_32_type result;
             result.process_bytes(data.data(), data.size());
-            return result.checksum();
+            auto test=result.checksum();
+            return test;
 
         }
 

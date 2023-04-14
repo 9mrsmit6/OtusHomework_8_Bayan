@@ -4,6 +4,7 @@
 #include <filesystem>
 #include "../Options/Options.hpp"
 
+//Фильтр для отсеивания путей
 struct Filter
 {
 
@@ -14,6 +15,7 @@ struct Filter
 
     }
 
+    //Фильтр по регуляркам
     bool regexFilter(const std::string& path)
     {
         if(masks.empty()){return true;}
@@ -36,6 +38,7 @@ struct Filter
         return false;
     }
 
+    //Фильтр по исключенным папкам
     bool dirFilter(const std::string& path)
     {
         for(auto& s:opt.excludeDirs)
@@ -52,6 +55,7 @@ private:
     const std::vector<boost::regex> masks;
     const Options::RawOptions& opt;
 
+    //Конструирую выражение regex по строке
     std::vector<boost::regex> createExprations(const std::vector<std::string>&  mask)
     {
         std::vector<boost::regex> ret;

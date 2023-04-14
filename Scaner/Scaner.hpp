@@ -17,6 +17,7 @@ namespace FileSearch
             filter(opt_)
         {   }
 
+        //Сканируем fs и отбираем пути для обработки
         std::unique_ptr<Data::FileInfoBiMap> createPaths()
         {
 
@@ -34,6 +35,7 @@ namespace FileSearch
                 }
             }
 
+            //Вот тут я отсекаю файлы с уникальным размером
             Data::eraseUniq(*map);
             maxBlockCnt=map->left.rbegin()->first;
             return std::move(map);
@@ -63,6 +65,7 @@ namespace FileSearch
                             filter.dirFilter(i->path())
                       )
                     {
+                        //Начальный хеш это размер файла
                        auto sz=std::filesystem::file_size(i->path());
                        auto blCnt=(sz/blockSize)+1;
                        bmP->insert({blCnt, {   i->path(),  sz }  });
