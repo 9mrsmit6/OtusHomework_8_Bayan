@@ -9,6 +9,13 @@
 
 namespace Options
 {
+    enum class HashType
+    {
+        CRC32=0,
+        CRC16,
+        XMODEM
+    };
+
     //Хранение сырых опций
     struct RawOptions
     {
@@ -18,8 +25,12 @@ namespace Options
         std::size_t                             minFileSize{1};//in bytes
         std::vector<std::string>                fileMask{{"(\\w+).md"}};
         std::size_t                             blockSize{10};
-        int                                     hashNumber{0};
+        HashType                                hashNumber{HashType::CRC16};
     };
+
+    int hashNumber{0};
+
+
 
     //Парсим опции
     std::tuple<RawOptions&, bool> getRawOptions(int argc, const char *argv[])
@@ -39,7 +50,7 @@ namespace Options
                     ("fsize,s",     po::value< std::size_t >                (&opt.minFileSize),    "min file size")
                     ("mask,m",      po::value< std::vector<std::string> >   (&opt.fileMask),       "mask")
                     ("bsize,bs",    po::value< std::size_t>                 (&opt.blockSize),      "blockSize")
-                    ("hash,h",      po::value< int >                        (&opt.hashNumber),     "hash type []");
+                    ("hash,h",      po::value< int >                        (&hashNumber),         "hash type []");
 
             po::variables_map vm;
             po::store(parse_command_line(argc, argv, desc), vm);
@@ -49,6 +60,14 @@ namespace Options
             {
                 opt.includeDirs.push_back(".");
             }
+
+            switch(hashNumber)
+            {
+                case 0: opt.hashNumber=HashType::CRC32;     break;
+                case 1: opt.hashNumber=HashType::CRC16;     break;
+                case 2: opt.hashNumber=HashType::XMODEM;    break;
+                default:opt.hashNumber=HashType::CRC32;     break;
+            };
         }
         catch(...)
         {

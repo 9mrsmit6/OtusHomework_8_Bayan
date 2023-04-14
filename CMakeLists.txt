@@ -19,6 +19,7 @@ add_executable(bayan
     Filter/Filter.hpp
     Data/Data.hpp
     Processor/Processor.hpp
+    Hash/Hash.hpp
 )
 
 target_link_libraries(bayan

@@ -8,26 +8,31 @@
 #include <fstream>
 #include <vector>
 #include <boost/bimap/support/lambda.hpp>
-#include <boost/crc.hpp>
+
 
 namespace Process
 {
     struct Processor
     {
 
-        Processor(const std::size_t blockSize_, const std::size_t blockCnt_):
+        Processor(const std::size_t blockSize_, const std::size_t blockCnt_, std::size_t (*hasher_)(const std::vector<char>&)):
             blockSize(blockSize_),
-            maxBlockCnt(blockCnt_){}
+            maxBlockCnt(blockCnt_),
+            hasher(hasher_)
+        {}
 
+        //Основной алгоритм
         void searchDublicate(std::unique_ptr<Data::FileInfoBiMap>& map)
         {
+            //Цикл в глубину по блокам
             for(std::size_t i{0};i!=maxBlockCnt;i++)
             {
                 auto seek=i*blockSize;
                 for(auto it=map->right.begin();it!=map->right.end();it++)
                 {
+
                     auto& [path, sz]=it->first;
-                    if(sz<=seek){continue;}
+                    if(sz<=seek){continue;}  //Если файл вычитан полностью
 
                     auto newHash=getBlockHash(seek, path);
                     if(newHash)
@@ -37,16 +42,18 @@ namespace Process
                     }
                     else
                     {
-                        assert(true);
+                        //Не смог расчитать хеш. Надо бы удалить этот файл из обработки. Может с ним что-то не так...
+                        assert(false);
                     }
 
                 }
-
+                //Зачищаем дубликаты на этом уровне
                 Data::eraseUniq(*map);
             }
         }
 
     private:
+        //Чтение блока файла и получение его хеша
         std::optional<std::size_t> getBlockHash(std::size_t seek, const std::filesystem::path& path)
         {
             std::vector<char> block(blockSize,0);
@@ -74,20 +81,11 @@ namespace Process
                 return std::nullopt;
             }
 
-            return std::optional{hashBlock(block)};
+            return std::optional{hasher(block)};
 
         }
 
-
-        std::size_t hashBlock( std::vector<char>& data)
-        {
-            boost::crc_32_type result;
-            result.process_bytes(data.data(), data.size());
-            auto test=result.checksum();
-            return test;
-
-        }
-
+        //boost  hashcombine
         std::size_t combineHash(std::size_t oldHash, std::size_t newHash)
         {
             oldHash ^= newHash + 0x9e3779b9 + (oldHash << 6) + (oldHash >> 2);
@@ -96,6 +94,7 @@ namespace Process
 
         const std::size_t blockSize;
         const std::size_t maxBlockCnt;
+        std::size_t (*hasher)(const std::vector<char>&);
 
     };
 }
