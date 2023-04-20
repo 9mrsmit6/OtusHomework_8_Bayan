@@ -43,14 +43,14 @@ namespace Options
         {
             po::options_description desc{"Options"};
             desc.add_options()
-                    ("help,h", "Select optins")
-                    ("include,I",   po::value< std::vector<std::filesystem::path> >   (&opt.includeDirs),    "Include Directoris")
-                    ("exclude,E",   po::value< std::vector<std::string> >   (&opt.excludeDirs),    "Exclude Directoris")
-                    ("recursive,r", po::value< bool >                       (&opt.isRecursive),    "Recursive")
-                    ("fsize,s",     po::value< std::size_t >                (&opt.minFileSize),    "min file size")
-                    ("mask,m",      po::value< std::vector<std::string> >   (&opt.fileMask),       "mask")
-                    ("bsize,bs",    po::value< std::size_t>                 (&opt.blockSize),      "blockSize")
-                    ("hash,h",      po::value< int >                        (&hashNumber),         "hash type []");
+                    ("help,h", "Show help")
+                    ("include,I",   po::value< std::vector<std::filesystem::path> >   (&opt.includeDirs),    "Include Directoris DEF: ./")
+                    ("exclude,E",   po::value< std::vector<std::string> >   (&opt.excludeDirs),    "Exclude Directoris DEF: empty")
+                    ("recursive,r", po::value< bool >                       (&opt.isRecursive),    "Recursive bool DEF: true")
+                    ("fsize,s",     po::value< std::size_t >                (&opt.minFileSize),    "min file size (size_t) DEF: 1")
+                    ("mask,m",      po::value< std::vector<std::string> >   (&opt.fileMask),       "mask DEF: (\\w+).md  (md files)")
+                    ("bsize,b",    po::value< std::size_t>                 (&opt.blockSize),      "blockSize (size_t) DEF: 10")
+                    ("hash,H",     po::value< int >                        (&hashNumber),         "hash type [0->CRC32; 1->CRC16; 2->XMODEM] DEF: CRC32");
 
             po::variables_map vm;
             po::store(parse_command_line(argc, argv, desc), vm);
@@ -59,6 +59,11 @@ namespace Options
             if(opt.includeDirs.empty())
             {
                 opt.includeDirs.push_back(".");
+            }
+
+
+            if (vm.count("help")) {
+                std::cout << desc << "\n";
             }
 
             switch(hashNumber)

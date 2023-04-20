@@ -35,13 +35,13 @@ int main(int argc, const char *argv[])
         return -1;
     }
 
-    FileSearch::Scaner scaner(rawOptions);
-    auto filesMap=scaner.createPaths();
+//    FileSearch::Scaner scaner(rawOptions);
+//    auto filesMap=scaner.createPaths();
 
-    auto proc=createHandler(rawOptions, scaner.getMaxBlockCount());
-    proc.searchDublicate(filesMap);
+//    auto proc=createHandler(rawOptions, scaner.getMaxBlockCount());
+//    proc.searchDublicate(filesMap);
 
-    Data::printFilesPaths(*filesMap);
+//    Data::printFilesPaths(*filesMap);
 
     return 0;
 }

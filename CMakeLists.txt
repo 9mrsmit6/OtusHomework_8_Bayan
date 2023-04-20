@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.5)
 project(bayan LANGUAGES CXX)
 
 #MyBoostPath
-#set( BOOST_ROOT "/slowDataB/Boost/boost_1_81_0" )
+set( BOOST_ROOT "/slowDataB/Boost/boost_1_81_0" )
+#set( BOOST_ROOT "/slowDataB/Boost/boost_1_74_0" )
 
 find_package(Boost COMPONENTS program_options regex container REQUIRED)
 
