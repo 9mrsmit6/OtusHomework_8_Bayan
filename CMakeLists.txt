@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 project(bayan LANGUAGES CXX)
 
-
-set( BOOST_ROOT "/slowDataB/Boost/boost_1_81_0" )
+#MyBoostPath
+#set( BOOST_ROOT "/slowDataB/Boost/boost_1_81_0" )
 
 find_package(Boost COMPONENTS program_options unit_test_framework REQUIRED)
 
@@ -18,13 +18,17 @@ add_executable(bayan
     Scaner/Scaner.hpp
     Filter/Filter.hpp
     Data/Data.hpp
-    Processor/Processor.hpp
+    Processing/Handler.hpp
     Hash/Hash.hpp
 )
 
-target_link_libraries(bayan
-        ${Boost_LIBRARIES}
-        )
+target_link_libraries(bayan   ${Boost_LIBRARIES}    )
 
 install(TARGETS bayan
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+
+set(CPACK_GENERATOR DEB)
+set(CPACK_PACKAGE_FILE_NAME   "${CMAKE_PROJECT_NAME}")
+set(CPACK_PACKAGE_CONTACT 9mrsmit6@gmail.com)
+include(CPack)

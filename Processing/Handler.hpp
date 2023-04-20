@@ -10,12 +10,12 @@
 #include <boost/bimap/support/lambda.hpp>
 
 
-namespace Process
+namespace Processing
 {
-    struct Processor
+    struct Handler
     {
 
-        Processor(const std::size_t blockSize_, const std::size_t blockCnt_, std::size_t (*hasher_)(const std::vector<char>&)):
+        Handler(const std::size_t blockSize_, const std::size_t blockCnt_, std::size_t (*hasher_)(const std::vector<char>&)):
             blockSize(blockSize_),
             maxBlockCnt(blockCnt_),
             hasher(hasher_)
