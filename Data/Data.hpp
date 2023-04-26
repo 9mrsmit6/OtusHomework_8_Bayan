@@ -52,12 +52,20 @@ namespace Data
         }
     }
 
-    //Печаталка тольо путей
+    //Печаталка только путей
     void printFilesPaths(Data::FileInfoBiMap& map)
     {
+        auto lastHash=(*map.left.begin()).first;
+
         for(auto& i:map)
         {
+            auto hash=i.left;
             auto [path, size]=i.right;
+            if(hash!=lastHash)
+            {
+                std::cout<<std::endl;
+                lastHash=hash;
+            }
             std::cout<<path<<std::endl;
         }
     }

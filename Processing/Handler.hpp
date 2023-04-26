@@ -22,13 +22,13 @@ namespace Processing
         {}
 
         //Основной алгоритм
-        void searchDublicate(std::unique_ptr<Data::FileInfoBiMap>& map)
+        void searchDublicate(Data::FileInfoBiMap& map)
         {
             //Цикл в глубину по блокам
             for(std::size_t i{0};i!=maxBlockCnt;i++)
             {
                 auto seek=i*blockSize;
-                for(auto it=map->right.begin();it!=map->right.end();it++)
+                for(auto it=map.right.begin();it!=map.right.end();it++)
                 {
 
                     auto& [path, sz]=it->first;
@@ -38,7 +38,7 @@ namespace Processing
                     if(newHash)
                     {
                         auto hash=combineHash(it->second, newHash.value());
-                        map->right.modify_data(it,boost::bimaps::_data=hash);
+                        map.right.modify_data(it,boost::bimaps::_data=hash);
                     }
                     else
                     {
@@ -48,7 +48,7 @@ namespace Processing
 
                 }
                 //Зачищаем дубликаты на этом уровне
-                Data::eraseUniq(*map);
+                Data::eraseUniq(map);
             }
         }
 

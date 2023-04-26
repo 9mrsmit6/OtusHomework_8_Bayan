@@ -5,7 +5,8 @@
 #include <boost/program_options.hpp>
 #include <filesystem>
 
-#include <tuple>
+//#include <tuple>
+#include <optional>
 
 namespace Options
 {
@@ -33,11 +34,11 @@ namespace Options
 
 
     //Парсим опции
-    std::tuple<RawOptions&, bool> getRawOptions(int argc, const char *argv[])
+    std::optional<RawOptions> getRawOptions(int argc, const char *argv[])
     {
         namespace po = boost::program_options;
 
-        static RawOptions opt;
+        RawOptions opt;
 
         try
         {
@@ -76,10 +77,10 @@ namespace Options
         }
         catch(...)
         {
-            return std::tuple<RawOptions&, bool>{opt,false};
+            return std::nullopt;
         }
 
-        return std::tuple<RawOptions&, bool>{opt,true};
+        return opt;
     }
 
 

@@ -39,17 +39,29 @@ struct Filter
     }
 
     //Фильтр по исключенным папкам
-    bool dirFilter(const std::string& path)
-    {
-        for(auto& s:opt.excludeDirs)
+//    bool dirFilter(const std::string& path)
+//    {
+//        for(auto& s:opt.excludeDirs)
+//        {
+//            if(path.find(s)!=std::string::npos)
+//            {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
+        bool dirFilter(const std::filesystem::path& path)
         {
-            if(path.find(s)!=std::string::npos)
+            for(auto& s:opt.excludeDirs)
             {
-                return false;
+                std::string strP{path.parent_path()};
+                if(strP.find(s)!=std::string::npos)
+                {
+                    return false;
+                }
             }
+            return true;
         }
-        return true;
-    }
 
 private:
     const std::vector<boost::regex> masks;
